@@ -1,6 +1,6 @@
 """Constants for Flatlib Natal integration."""
 
-DOMAIN = "flatlib_natal"
+DOMAIN = "flatlib_astrology"
 
 # Planet display names
 PLANETS = {
