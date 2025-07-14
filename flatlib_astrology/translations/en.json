@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add Natal Chart Profile",
+        "description": "Enter the birth details for the person.",
+        "data": {
+          "name": "Name",
+          "birth_date": "Date of Birth",
+          "birth_time": "Time of Birth",
+          "location": "Location",
+          "time_zone": "Timezone (e.g., +03:00)"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "A profile with this name already exists."
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "domain": "flatlib_astrology",
+  "name": "Flatlib Astrology",
+  "config_flow": true,
+  "documentation": "https://github.com/navi-vonamut/hass-flatlib-integration/blob/main/README.md",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/navi-vonamut/hass-flatlib-integration/issues",
+  "version": "0.1.0",
+  "codeowners": ["@navi-vonamut"],
+  "requirements": ["aiohttp"]
+}
