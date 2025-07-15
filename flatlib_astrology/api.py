@@ -10,7 +10,7 @@ class ApiClient:
         """Initialize the API client."""
         self._session = session
         # Supervisor DNS резолвит slug аддона в его IP-адрес
-        self._api_url = f"http://flatlib_server:8080/natal"
+        self._api_url = f"http://homeassistant.local:8080/natal"
 
     async def get_natal_chart(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """Get natal chart data from the add-on."""
