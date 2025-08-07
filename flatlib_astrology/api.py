@@ -1,21 +1,19 @@
-"""API Client for the Flatlib Natal Chart Add-on."""
+# api.py
 import aiohttp
 import asyncio
 from typing import Dict, Any
+from datetime import datetime
+from dateutil.relativedelta import relativedelta  # Новый импорт
 
 class ApiClient:
-    """API Client to communicate with the Flatlib server."""
-
     def __init__(self, session: aiohttp.ClientSession):
-        """Initialize the API client."""
         self._session = session
-        # Supervisor DNS резолвит slug аддона в его IP-адрес
-        self._api_url = f"http://homeassistant.local:8080/natal"
+        self._base_url = "http://localhost:8080"
 
     async def get_natal_chart(self, payload: Dict[str, Any]) -> Dict[str, Any]:
-        """Get natal chart data from the add-on."""
+        url = f"{self._base_url}/natal"
         try:
-            async with self._session.post(self._api_url, json=payload) as response:
+            async with self._session.post(url, json=payload) as response:
                 response.raise_for_status()
                 return await response.json()
         except asyncio.TimeoutError:
@@ -23,5 +21,44 @@ class ApiClient:
         except aiohttp.ClientError as err:
             raise ApiError(f"Error communicating with API: {err}")
 
+    async def async_get_daily_prediction(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        url = f"{self._base_url}/predict/daily"
+        
+        today_str = datetime.now().strftime('%Y/%m/%d')
+        prediction_payload = {**payload, "target_date": today_str}
+
+        try:
+            async with self._session.post(url, json=prediction_payload) as response:
+                response.raise_for_status()
+                return await response.json()
+        except asyncio.TimeoutError:
+            raise ApiError("Timeout communicating with API for daily prediction")
+        except aiohttp.ClientError as err:
+            raise ApiError(f"Error communicating with API for daily prediction: {err}")
+
+    # --- НОВЫЙ МЕТОД: Месячный прогноз ---
+    async def async_get_monthly_prediction(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        url = f"{self._base_url}/predict/monthly"
+        try:
+            async with self._session.post(url, json=payload) as response:
+                response.raise_for_status()
+                return await response.json()
+        except asyncio.TimeoutError:
+            raise ApiError("Timeout communicating with API for monthly prediction")
+        except aiohttp.ClientError as err:
+            raise ApiError(f"Error communicating with API for monthly prediction: {err}")
+
+    # --- НОВЫЙ МЕТОД: Годовой прогноз ---
+    async def async_get_yearly_prediction(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+        url = f"{self._base_url}/predict/yearly"
+        try:
+            async with self._session.post(url, json=payload) as response:
+                response.raise_for_status()
+                return await response.json()
+        except asyncio.TimeoutError:
+            raise ApiError("Timeout communicating with API for yearly prediction")
+        except aiohttp.ClientError as err:
+            raise ApiError(f"Error communicating with API for yearly prediction: {err}")
+
 class ApiError(Exception):
-    """Exception to indicate a general API error."""
+    """Исключение для обозначения общей ошибки API."""

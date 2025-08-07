@@ -5,11 +5,11 @@
         "title": "Add Natal Chart Profile",
         "description": "Enter the birth details for the person.",
         "data": {
-          "name": "Name",
+          "user_id": "User",
           "birth_date": "Date of Birth",
           "birth_time": "Time of Birth",
           "location": "Location",
-          "time_zone": "Timezone (e.g., +03:00)"
+          "time_zone": "Timezone"
         }
       }
     },

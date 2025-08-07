@@ -2,6 +2,8 @@
 
 DOMAIN = "flatlib_astrology"
 
+PLATFORMS = ["sensor"]
+
 # Planet display names
 PLANETS = {
     "Sun": "Sun",

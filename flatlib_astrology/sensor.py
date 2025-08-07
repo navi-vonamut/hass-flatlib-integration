@@ -1,70 +1,134 @@
-"""Platform for Natal Chart sensor integration."""
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
+"""Platform for Flatlib sensor integration."""
 from homeassistant.components.sensor import SensorEntity
-from .const import DOMAIN # Предполагаем, что DOMAIN определён в const.py
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-# Импорты PLANETS, ANGLES, HOUSES, ASPECTS, ZODIAC_SIGNS, SPECIAL_OBJECTS
-# больше не нужны в этом файле, так как мы не будем создавать отдельные сенсоры для них.
+from .const import DOMAIN
 
 class NatalChartRawSensor(CoordinatorEntity, SensorEntity):
-    """Sensor to hold raw natal chart and transit data for LLM interpretation."""
+    """Sensor to hold raw natal chart data."""
 
     def __init__(self, coordinator, unique_prefix, person_name):
         """Initialize the sensor."""
         super().__init__(coordinator)
-        self._person_name = person_name
-        
-        # Уникальный ID сенсора
-        self._attr_unique_id = f"{unique_prefix}_natal_chart"
-        # Отображаемое имя сенсора
-        self._attr_name = f"{person_name} Natal Chart"
-        # Иконка для сенсора
-        self._attr_icon = "mdi:star-four-points" # Можно выбрать что-то более подходящее, если есть
-
-        # Информация об устройстве для группировки в Home Assistant UI
-        # Это создает "виртуальное устройство", к которому будет принадлежать ваш сенсор.
-        # Это полезно для организации в UI.
+        self._attr_unique_id = f"{unique_prefix}_natal_chart_raw"
+        self._attr_name = f"{person_name} Natal Chart Raw Data"
+        self._attr_icon = "mdi:star-four-points"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, unique_prefix)},
-            "name": f"{person_name} Astrology Data", # Имя виртуального устройства
-            "manufacturer": "Flatlib"
+            "name": f"{person_name} Astrology Data",
+            "manufacturer": "Flatlib",
         }
 
     @property
     def state(self):
-        """Return the state of the sensor. 
-        It can be 'loaded', 'empty', or 'error' depending on data availability.
-        """
+        """Return the state of the sensor."""
         if self.coordinator.data:
-            # Проверяем наличие ключевых секций для натальной карты, чтобы убедиться, что данные полные
-            if "planets" in self.coordinator.data and "angles" in self.coordinator.data:
-                return "loaded"
-            else:
-                return "incomplete" # Данные есть, но не полные
-        return "empty" # Данных нет
+            return "loaded"
+        return "empty"
 
     @property
     def extra_state_attributes(self):
-        """Return the raw natal chart and transit data as attributes."""
-        # Все данные из координатора (полученные от аддона) помещаем в атрибуты.
-        # Это позволяет LLM-ассистентам легко получить доступ ко всей структуре JSON.
+        """Return the raw natal chart data as attributes."""
         return self.coordinator.data or {}
 
+
+class DailyPredictionRawSensor(CoordinatorEntity, SensorEntity):
+    """Sensor to hold daily prediction data as raw attributes."""
+
+    def __init__(self, coordinator, unique_prefix, person_name):
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{unique_prefix}_daily_prediction_raw"
+        self._attr_name = f"{person_name} Daily Prediction Raw Data"
+        self._attr_icon = "mdi:calendar-today"
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, unique_prefix)},
+            "name": f"{person_name} Astrology Data",
+            "manufacturer": "Flatlib",
+        }
+
+    @property
+    def state(self):
+        """Return the state of the sensor. It indicates data availability."""
+        if self.coordinator.data:
+            return "loaded"
+        return "empty"
+
+    @property
+    def extra_state_attributes(self):
+        """Return all data as attributes."""
+        return self.coordinator.data or {}
+
+# --- НОВЫЕ КЛАССЫ СЕНСОРОВ ---
+class MonthlyPredictionRawSensor(CoordinatorEntity, SensorEntity):
+    """Sensor to hold monthly prediction data as raw attributes."""
+
+    def __init__(self, coordinator, unique_prefix, person_name):
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{unique_prefix}_monthly_prediction_raw"
+        self._attr_name = f"{person_name} Monthly Prediction Raw Data"
+        self._attr_icon = "mdi:calendar-month"  # Новая иконка
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, unique_prefix)},
+            "name": f"{person_name} Astrology Data",
+            "manufacturer": "Flatlib",
+        }
+
+    @property
+    def state(self):
+        """Return the state of the sensor. It indicates data availability."""
+        if self.coordinator.data:
+            return "loaded"
+        return "empty"
+
+    @property
+    def extra_state_attributes(self):
+        """Return all data as attributes."""
+        return self.coordinator.data or {}
+
+class YearlyPredictionRawSensor(CoordinatorEntity, SensorEntity):
+    """Sensor to hold yearly prediction data as raw attributes."""
+
+    def __init__(self, coordinator, unique_prefix, person_name):
+        """Initialize the sensor."""
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{unique_prefix}_yearly_prediction_raw"
+        self._attr_name = f"{person_name} Yearly Prediction Raw Data"
+        self._attr_icon = "mdi:calendar-star"  # Новая иконка
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, unique_prefix)},
+            "name": f"{person_name} Astrology Data",
+            "manufacturer": "Flatlib",
+        }
+
+    @property
+    def state(self):
+        """Return the state of the sensor. It indicates data availability."""
+        if self.coordinator.data:
+            return "loaded"
+        return "empty"
+
+    @property
+    def extra_state_attributes(self):
+        """Return all data as attributes."""
+        return self.coordinator.data or {}
+
+# --- ОБНОВЛЕННАЯ ФУНКЦИЯ НАСТРОЙКИ ---
 async def async_setup_entry(hass, config_entry, async_add_entities):
     """Set up the sensor platform from a config entry."""
-    # Получаем координатор обновления данных, который был создан в __init__.py
-    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    # Получаем все координаторы из словаря в hass.data
+    coordinators = hass.data[DOMAIN][config_entry.entry_id]
     
-    # Получаем имя человека из данных конфигурации (из config_flow или configuration.yaml)
-    person_name = config_entry.data["name"] 
-    
-    # Используем entry_id как уникальный префикс для всех сущностей, связанных с этой конфигурацией.
+    person_name = config_entry.data["name"]
     unique_prefix = config_entry.entry_id
 
-    # Создаем единственный сенсор для натальной карты
+    # Создаем все четыре сенсора, каждый со своим координатором
     sensors = [
-        NatalChartRawSensor(coordinator, unique_prefix, person_name)
+        NatalChartRawSensor(coordinators["natal_coordinator"], unique_prefix, person_name),
+        DailyPredictionRawSensor(coordinators["daily_prediction_coordinator"], unique_prefix, person_name),
+        MonthlyPredictionRawSensor(coordinators["monthly_prediction_coordinator"], unique_prefix, person_name),
+        YearlyPredictionRawSensor(coordinators["yearly_prediction_coordinator"], unique_prefix, person_name),
     ]
     
-    # Добавляем сенсор в Home Assistant
     async_add_entities(sensors)
