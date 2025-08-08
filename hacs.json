@@ -1,0 +1,7 @@
+{
+  "name": "Flatlib Astrology",
+  "domains": ["sensor"],
+  "homeassistant": "2023.8.0",
+  "iot_class": "cloud_polling",
+  "version": "0.2.0"
+}
